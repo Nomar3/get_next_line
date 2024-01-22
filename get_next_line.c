@@ -6,7 +6,7 @@
 /*   By: rmarin-j <rmarin-j@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 20:38:29 by rmarin-j          #+#    #+#             */
-/*   Updated: 2024/01/21 22:58:36 by rmarin-j         ###   ########.fr       */
+/*   Updated: 2024/01/22 20:41:18 by rmarin-j         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,81 +24,21 @@ int	new_line(char *str)
 	return (-1);
 }
 
-size_t	ft_strlen(const char *str)
+
+char	*line_cut(char *storage)
 {
-	size_t	i;
-
+	int		i;
+	char	*pre_n;
+	
 	i = 0;
-	while (str[i])
-		i++;
-	return (i);
-}
-
-int	ft_strncmp(const char *s1, const char *s2)
-{
-	size_t	i;
-
-	i = 0;
-	while (s1[i] != '\0' || s2[i] != '\0')
+	
+	while(storage[i])
 	{
-		if (s1[i] != s2[i])
-			return ((unsigned char)s1[i] - (unsigned char)s2[i]);
+		pre_n[i] = storage[i];
+		if(storage[i] == '\n')
+			return (pre_n);
 		i++;
 	}
-	return (0);
-}
-
-char	*ft_strjoin(char const *s1, char const *s2)
-{
-	size_t	i;
-	size_t	j;
-	char	*ptr;
-
-	i = 0;
-	j = 0;
-	ptr = (char *)malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
-	if (!ptr)
-		return (0);
-	while (s1[i])
-	{
-		ptr[i] = s1[i];
-		i++;
-	}
-	while (s2[j])
-	{
-		ptr[i + j] = s2[j];
-		j++;
-	}
-	ptr[i + j] = '\0';
-	return (ptr);
-}
-
-char	*ft_substr(char const *s, unsigned int start, size_t len)
-{
-	char	*ptr;
-	size_t	i;
-
-	i = 0;
-	if (!s)
-		return (NULL);
-	if ((start + len) > ft_strlen(s))
-		len = ft_strlen(s) - start;
-	if (start >= ft_strlen(s))
-		len = 0;
-	ptr = (char *)malloc(sizeof(char) * (len + 1));
-	if (!ptr)
-		return (NULL);
-	while (i < len)
-	{
-		ptr[i] = s[start + i];
-		i++;
-	}
-	ptr[i] = '\0';
-	return (ptr);
-}
-
-char	*paco(char **storage)
-{
 	
 }
 
@@ -117,19 +57,20 @@ char	*ft_read(char *storage, int fd)
 		storage = 0;
 		return (NULL);
 	}
-	//si el storage no tiene salto de linea
-	if (new_line(storage) == -1)
-		return (ft_read(storage, fd));
-	//si tiene salto de linea
-	else
-		return (paco ());
-	//si ha llegado y el storage no esta vacio
+	//si ha llegado al final y el storage no esta vacio
 	if (n_byte == 0 && storage[0] != 0)
 		return (storage);
-	//cuando lee porque no hay salto de linea, le añade bytes al storage
-	temp = ft_strjoin(storage, buffer);
-	free(storage);
-	return (temp);
+	//si el storage no tiene salto de linea, 
+	if (new_line(storage) == -1)
+	{
+		temp = ft_strjoin(storage, buffer);
+		free(storage);
+		storage = temp;
+		return (ft_read(storage, fd));
+	}
+	//si tiene salto de linea, 
+	else
+		return (storage);
 }
 
 
@@ -141,7 +82,7 @@ char	*get_next_line(int fd)
 	if (!storage)
 	{
 		storage = malloc(sizeof(char));
-		storage = 0;
+		*storage = 0;
 	}
 	storage = ft_read(storage, fd);
 }
