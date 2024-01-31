@@ -5,93 +5,111 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rmarin-j <rmarin-j@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/01/10 20:38:29 by rmarin-j          #+#    #+#             */
-/*   Updated: 2024/01/25 22:26:41 by rmarin-j         ###   ########.fr       */
+/*   Created: 2024/01/31 18:25:16 by rmarin-j          #+#    #+#             */
+/*   Updated: 2024/01/31 22:41:48 by rmarin-j         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-
-int	new_line(char *str)
+char	*new_storage(char *storage, char *line)
 {
-	int	i;
-
-	i = 0;
-	while (str[i] != '\0'){
-		if (str[i] == '\n')
-			return (i);
+	char	*temp;
+	int		i;
+	int j;
+	j=0;
+	
+	if(!line)
+		return(NULL);
+	temp = ft_calloc((ft_strlen(storage) - ft_strlen(line) + 2), sizeof(char));
+	i = ft_strlen(line);
+	while (storage[i])
+	{
+		temp[j] = storage[i];
 		i++;
+		j++;
 	}
-	return (-1);
+	free(storage);
+	storage = NULL;
+	temp[j] = 0;
+	return(temp);
 }
 
-
-char	*line_cut(char *storage)
+char	*new_line(char *storage)
 {
+	char	*line;
 	int		i;
-	char	*pre_n;
-	
+
 	i = 0;
-	while(storage[i] && storage[i]!='\n')
+	if (!storage[i])
+		return (NULL);
+	while (storage[i] && storage[i] != '\n')
 		i++;
-	pre_n = malloc(i+1);
+	if (!storage[i])
+		i--;
+	line = ft_calloc(i + 2, sizeof(char));
 	i = 0;
-	while(storage[i])
+	while (storage[i] && storage[i] != '\n')
 	{
-		pre_n[i] = storage[i];
-		if(storage[i] == '\n')
-			return (pre_n);
+		line[i] = storage[i];
 		i++;
 	}
-	return (storage);
+	if (storage[i]=='\n')
+		line[i] = '\n';
+	return(line);
+}
+
+char	*read_line(char *storage, int fd)
+{
+	char	buffer[BUFFER_SIZE + 1];
+	char	*temp;
+	int		n_bytes;
+	
+	n_bytes = 1;
+	buffer[0] = 0;
+	if(!storage)
+		storage = ft_calloc(1,1);
+	while (n_bytes > 0 && !ft_strchr(buffer, '\n'))
+	{
+		n_bytes = read(fd, buffer, BUFFER_SIZE);
+		if (n_bytes < 0)
+		{
+			free (storage);
+			storage = NULL;
+			return(NULL);
+		}
+		buffer[n_bytes] = 0;
+		temp = ft_strjoin(storage, buffer);
+		free(storage);
+		storage = temp;
+	}
+	return(storage);
 }
 
 char	*get_next_line(int fd)
 {
-	static char* storage;
-		char	buffer[BUFFER_SIZE + 1];
-	char	*temp;
-	int		n_byte;
-
-	if (!storage)
-	{
-		storage = malloc(1);
-		*storage = 0;
-	} 
-	n_byte = read(fd, buffer, BUFFER_SIZE);
-	buffer[n_byte] = 0;
-	//si falla read o (ha llegado al final y el storage esta vacio)
-	if ((n_byte < 0) || (n_byte == 0 && storage[0] == 0))
+	static char	*storage;
+	char	*line;
+	
+	if(fd < 0 || BUFFER_SIZE <=0 || read(fd, 0, 0) < 0)
 	{
 		free(storage);
-		storage = 0;
-		return (NULL);
+		storage = NULL;
+		return(NULL);
 	}
-	//si ha llegado al final y el storage no esta vacio
-	if (n_byte == 0 && storage[0] != 0)
-		return (storage);
-	//si el storage no tiene salto de linea, 
-	if (new_line(storage) == -1)
+	storage = read_line(storage, fd);
+	line = new_line(storage);
+	if(!line)
 	{
-		temp = ft_strjoin(storage, buffer);
 		free(storage);
-		storage = temp;
-		return (get_next_line(fd));
+		storage = NULL;
 	}
-	//si tiene salto de linea, 
-	else
-	{
-		storage = line_cut(buffer);
-		return (storage);
+	storage = new_storage(storage, line);
+	return(line);
 	}
-}
-int main()
+/* int main ()
 {
 	int fd;
-	
 	fd = open("texto.txt", O_RDONLY);
-	printf("%s\n\n", get_next_line(fd));
-/* 	printf("%s\n\n", get_next_line(fd));
-	printf("%s\n\n", get_next_line(fd));
-	printf("%s\n\n", get_next_line(fd)); */
-}
+	printf("%s",get_next_line(fd));
+	printf("%s",get_next_line(fd));
+} */

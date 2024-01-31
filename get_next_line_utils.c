@@ -5,13 +5,43 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rmarin-j <rmarin-j@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/01/22 20:13:19 by rmarin-j          #+#    #+#             */
-/*   Updated: 2024/01/25 18:48:56 by rmarin-j         ###   ########.fr       */
+/*   Created: 2024/01/31 18:25:14 by rmarin-j          #+#    #+#             */
+/*   Updated: 2024/01/31 18:57:13 by rmarin-j         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-size_t	ft_strlen(const char *str)
+
+char	*ft_strchr(char *str, int c)
+{
+	char	*p;
+
+	p = (char *)str;
+	while (*p != (char)c && *p != '\0')
+		p++;
+	if (*p == (char)c)
+		return (p);
+	return (0);
+}
+
+void	*ft_calloc(size_t count, size_t size)
+{
+	char	*ptr;
+	size_t	i;
+
+	ptr = malloc(count * size);
+	i = 0;
+	if (ptr == NULL)
+		return (ptr);
+	while (i < (count * size))
+	{
+		ptr[i] = '\0';
+		i++;
+	}
+	return (ptr);
+}
+
+size_t	ft_strlen(char *str)
 {
 	size_t	i;
 
@@ -21,21 +51,7 @@ size_t	ft_strlen(const char *str)
 	return (i);
 }
 
-int	ft_strncmp(const char *s1, const char *s2)
-{
-	size_t	i;
-
-	i = 0;
-	while (s1[i] != '\0' || s2[i] != '\0')
-	{
-		if (s1[i] != s2[i])
-			return ((unsigned char)s1[i] - (unsigned char)s2[i]);
-		i++;
-	}
-	return (0);
-}
-
-char	*ft_strjoin(char const *s1, char const *s2)
+char	*ft_strjoin(char *s1, char *s2)
 {
 	size_t	i;
 	size_t	j;
@@ -57,29 +73,5 @@ char	*ft_strjoin(char const *s1, char const *s2)
 		j++;
 	}
 	ptr[i + j] = '\0';
-	return (ptr);
-}
-
-char	*ft_substr(char const *s, unsigned int start, size_t len)
-{
-	char	*ptr;
-	size_t	i;
-
-	i = 0;
-	if (!s)
-		return (NULL);
-	if ((start + len) > ft_strlen(s))
-		len = ft_strlen(s) - start;
-	if (start >= ft_strlen(s))
-		len = 0;
-	ptr = (char *)malloc(sizeof(char) * (len + 1));
-	if (!ptr)
-		return (NULL);
-	while (i < len)
-	{
-		ptr[i] = s[start + i];
-		i++;
-	}
-	ptr[i] = '\0';
 	return (ptr);
 }
