@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rmarin-j <rmarin-j@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 18:25:16 by rmarin-j          #+#    #+#             */
-/*   Updated: 2024/02/01 18:56:55 by rmarin-j         ###   ########.fr       */
+/*   Updated: 2024/02/01 18:52:18 by rmarin-j         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 char	*free_stor(char **storage)
 {
@@ -99,32 +99,32 @@ char	*read_line(char *storage, int fd)
 
 char	*get_next_line(int fd)
 {
-	static char	*storage;
+	static char	*storage[FD_SETSIZE];
 	char		*line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
 	{
-		free(storage);
-		storage = NULL;
+		free(storage[fd]);
+		storage[fd] = NULL;
 		return (NULL);
 	}
-	storage = read_line(storage, fd);
-	if (!storage)
+	storage[fd] = read_line(storage[fd], fd);
+	if (!storage[fd])
 		return (NULL);
-	line = new_line(storage);
+	line = new_line(storage[fd]);
 	if (!line)
 	{
-		free(storage);
-		storage = NULL;
+		free(storage[fd]);
+		storage[fd] = NULL;
 	}
-	storage = new_storage(storage, line);
+	storage[fd] = new_storage(storage[fd], line);
 	return (line);
 }
 
-int main ()
+/* int main ()
 {
 	int fd;
 	fd = open("texto.txt", O_RDONLY);
 	printf("%s",get_next_line(fd));
 	printf("%s",get_next_line(fd));
-}
+} */
